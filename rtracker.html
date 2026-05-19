@@ -1,0 +1,1475 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+<meta name="theme-color" content="#F4F1EA" />
+<title>ACL Rehab Tracker</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300;9..144,400;9..144,500;9..144,600&family=JetBrains+Mono:wght@400;500;600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #F4F1EA;
+    --bg-elev: #FAF7F0;
+    --bg-soft: #EBE5D7;
+    --bg-deeper: #E8E2D2;
+    --ink: #2A2620;
+    --ink-soft: #5A5044;
+    --ink-faint: #8A7F6B;
+    --ink-faintest: #B5AB97;
+    --line: #D9D2BF;
+    --line-soft: #E8E2D2;
+    --sage: #6B8E5A;
+    --sage-soft: #D5DFC9;
+    --sage-deep: #4F6E42;
+    --terracotta: #B86948;
+    --terracotta-soft: #F0DCD0;
+    --terracotta-deep: #8C4B30;
+    --shadow: 0 1px 2px rgba(42,38,32,0.04), 0 4px 14px rgba(42,38,32,0.06);
+    --shadow-lg: 0 4px 8px rgba(42,38,32,0.06), 0 12px 32px rgba(42,38,32,0.1);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #181612;
+      --bg-elev: #221F1A;
+      --bg-soft: #2A2620;
+      --bg-deeper: #322D26;
+      --ink: #F0EBE0;
+      --ink-soft: #B8AFA0;
+      --ink-faint: #8A7F6B;
+      --ink-faintest: #5A5044;
+      --line: #3A352D;
+      --line-soft: #2F2B24;
+      --sage: #8FB07A;
+      --sage-soft: #2A3522;
+      --sage-deep: #A8C595;
+      --terracotta: #D4825F;
+      --terracotta-soft: #3A2218;
+      --terracotta-deep: #E89B7A;
+      --shadow: 0 1px 2px rgba(0,0,0,0.3), 0 4px 14px rgba(0,0,0,0.4);
+      --shadow-lg: 0 4px 8px rgba(0,0,0,0.4), 0 12px 32px rgba(0,0,0,0.5);
+    }
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  html, body { height: 100%; overflow-x: hidden; }
+  body {
+    font-family: 'Inter', system-ui, sans-serif;
+    background: var(--bg);
+    color: var(--ink);
+    font-size: 16px;
+    line-height: 1.5;
+    overscroll-behavior: none;
+    padding-bottom: env(safe-area-inset-bottom);
+    padding-top: env(safe-area-inset-top);
+  }
+  button { font-family: inherit; cursor: pointer; border: none; background: none; color: inherit; }
+  input, textarea, select { font-family: inherit; font-size: 16px; }
+
+  .app {
+    max-width: 480px;
+    margin: 0 auto;
+    min-height: 100vh;
+    min-height: 100dvh;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+  }
+
+  .header {
+    padding: 20px 22px 14px;
+    border-bottom: 0.5px solid var(--line);
+    background: var(--bg);
+    position: sticky;
+    top: 0;
+    z-index: 10;
+  }
+  .header-row { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; }
+  .brand {
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 500;
+    font-size: 11px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--ink-faint);
+    margin-bottom: 8px;
+  }
+  .day-line {
+    font-family: 'Fraunces', serif;
+    font-size: 28px;
+    font-weight: 400;
+    letter-spacing: -0.02em;
+    line-height: 1.1;
+    color: var(--ink);
+  }
+  .day-line em { font-style: italic; color: var(--sage); }
+  .date-sub {
+    font-size: 11px;
+    color: var(--ink-faint);
+    margin-top: 4px;
+    font-family: 'JetBrains Mono', monospace;
+    letter-spacing: 0.04em;
+  }
+  .header-actions { display: flex; gap: 6px; }
+  .icon-btn {
+    width: 36px; height: 36px;
+    border-radius: 50%;
+    background: var(--bg-soft);
+    display: grid;
+    place-items: center;
+    color: var(--ink-soft);
+    transition: background 0.15s;
+  }
+  .icon-btn:active { background: var(--bg-deeper); }
+  .icon-btn svg { width: 16px; height: 16px; }
+
+  .streak-strip {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-top: 14px;
+    padding: 10px 12px;
+    background: var(--bg-deeper);
+    border-radius: 10px;
+    font-size: 13px;
+  }
+  .streak-dot {
+    width: 8px; height: 8px; border-radius: 50%;
+    background: var(--sage);
+    box-shadow: 0 0 0 3px var(--sage-soft);
+  }
+  .streak-text { color: var(--ink-soft); }
+  .streak-text strong { color: var(--ink); font-weight: 500; }
+
+  .main { flex: 1; overflow-x: hidden; padding: 24px 22px 60px; }
+
+  .empty { text-align: center; padding: 60px 20px; }
+  .empty-icon {
+    width: 64px; height: 64px;
+    margin: 0 auto 20px;
+    border: 1px dashed var(--line);
+    border-radius: 50%;
+    display: grid;
+    place-items: center;
+    color: var(--ink-faint);
+  }
+  .empty h2 {
+    font-family: 'Fraunces', serif;
+    font-weight: 400;
+    font-size: 24px;
+    margin-bottom: 8px;
+    letter-spacing: -0.01em;
+  }
+  .empty p {
+    color: var(--ink-soft);
+    font-size: 14px;
+    margin-bottom: 24px;
+    max-width: 280px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  .btn-primary {
+    background: var(--ink);
+    color: var(--bg);
+    padding: 13px 22px;
+    border-radius: 100px;
+    font-weight: 500;
+    font-size: 14px;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    transition: transform 0.1s;
+  }
+  .btn-primary:active { transform: scale(0.97); }
+  .btn-secondary {
+    background: var(--bg-soft);
+    color: var(--ink);
+    padding: 11px 18px;
+    border-radius: 100px;
+    font-weight: 500;
+    font-size: 13px;
+    border: 0.5px solid var(--line);
+  }
+  .btn-ghost { color: var(--ink-soft); padding: 11px 16px; font-size: 13px; font-weight: 500; }
+  .btn-sage {
+    background: var(--sage);
+    color: white;
+    padding: 12px 18px;
+    border-radius: 100px;
+    font-weight: 500;
+    font-size: 13px;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .btn-sage:active { transform: scale(0.97); }
+
+  .home-intro { margin-bottom: 18px; color: var(--ink-soft); font-size: 14px; }
+  .session-cards { display: flex; flex-direction: column; gap: 12px; margin-bottom: 24px; }
+  .session-card {
+    background: var(--bg-elev);
+    border: 0.5px solid var(--line);
+    border-radius: 18px;
+    padding: 18px 20px;
+    transition: all 0.2s;
+    text-align: left;
+    width: 100%;
+    display: block;
+  }
+  .session-card:active { transform: scale(0.99); }
+  .session-card.complete { background: var(--sage); border-color: var(--sage); }
+  .session-card.complete .s-time,
+  .session-card.complete .s-status,
+  .session-card.complete .s-name { color: white; }
+  .session-card.complete .s-status { opacity: 0.92; }
+  .session-card.active-now { border-color: var(--terracotta); border-width: 1.5px; }
+  .s-head { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 10px; }
+  .s-time {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--ink-faint);
+    margin-bottom: 4px;
+  }
+  .s-name {
+    font-family: 'Fraunces', serif;
+    font-size: 24px;
+    font-weight: 400;
+    letter-spacing: -0.01em;
+    line-height: 1.1;
+    color: var(--ink);
+  }
+  .s-badge {
+    background: var(--terracotta-soft);
+    color: var(--terracotta-deep);
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    padding: 4px 8px;
+    border-radius: 6px;
+  }
+  .s-status { display: flex; align-items: center; gap: 8px; margin-top: 12px; font-size: 13px; color: var(--ink-soft); }
+  .s-progress-bar { flex: 1; height: 4px; background: var(--bg-soft); border-radius: 2px; overflow: hidden; }
+  .session-card.complete .s-progress-bar { background: rgba(255,255,255,0.25); }
+  .s-progress-fill { height: 100%; background: var(--sage); transition: width 0.3s; border-radius: 2px; }
+  .session-card.complete .s-progress-fill { background: white; }
+  .s-check {
+    width: 22px; height: 22px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.25);
+    display: grid;
+    place-items: center;
+    color: white;
+  }
+
+  .today-summary {
+    background: var(--bg-soft);
+    border-radius: 14px;
+    padding: 14px 16px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 24px;
+  }
+  .today-summary .lbl {
+    font-size: 11px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--ink-faint);
+    font-weight: 600;
+  }
+  .today-summary .val {
+    font-family: 'Fraunces', serif;
+    font-size: 22px;
+    color: var(--terracotta);
+    margin-top: 2px;
+  }
+
+  .session-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 14px;
+  }
+  .back-btn {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    color: var(--ink-soft);
+    font-size: 13px;
+    font-weight: 500;
+    padding: 6px 0;
+  }
+  .back-btn svg { width: 14px; height: 14px; }
+  .session-title {
+    font-family: 'Fraunces', serif;
+    font-size: 18px;
+    font-weight: 400;
+    font-style: italic;
+    color: var(--ink);
+  }
+  .mark-all-btn {
+    background: var(--sage-soft);
+    color: var(--sage-deep);
+    padding: 7px 12px;
+    border-radius: 100px;
+    font-size: 12px;
+    font-weight: 500;
+  }
+
+  .card {
+    background: var(--bg-elev);
+    border: 0.5px solid var(--line);
+    border-radius: 18px;
+    padding: 22px 20px;
+    box-shadow: var(--shadow);
+    transition: border-color 0.3s;
+  }
+  .card.complete {
+    border-color: var(--sage);
+    box-shadow: var(--shadow), 0 0 0 2px var(--sage-soft);
+  }
+  .card-tag {
+    display: inline-block;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--ink-faint);
+    background: var(--bg-soft);
+    padding: 4px 9px;
+    border-radius: 4px;
+    margin-bottom: 14px;
+  }
+  .card-name {
+    font-family: 'Fraunces', serif;
+    font-weight: 400;
+    font-size: 26px;
+    letter-spacing: -0.02em;
+    line-height: 1.15;
+    margin-bottom: 6px;
+    color: var(--ink);
+  }
+  .card-muscle { font-size: 12px; color: var(--terracotta); font-weight: 500; margin-bottom: 16px; }
+
+  .details { border-top: 0.5px solid var(--line); padding-top: 14px; margin-bottom: 18px; }
+  .details-toggle {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 11px;
+    font-weight: 500;
+    color: var(--ink-faint);
+    letter-spacing: 0.04em;
+  }
+  .details-toggle svg { width: 14px; height: 14px; transition: transform 0.2s; }
+  .details.open .details-toggle svg { transform: rotate(180deg); }
+  .details-body {
+    font-size: 14px;
+    color: var(--ink-soft);
+    line-height: 1.55;
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.3s ease, margin-top 0.3s ease;
+  }
+  .details.open .details-body { max-height: 400px; margin-top: 10px; }
+  .reps-tag { margin-top: 8px; color: var(--terracotta); font-weight: 500; font-size: 13px; }
+
+  .sets-label {
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--ink-faint);
+    margin-bottom: 12px;
+  }
+  .sets { display: grid; gap: 10px; }
+  .sets.cols-1 { grid-template-columns: 1fr; }
+  .sets.cols-2 { grid-template-columns: 1fr 1fr; }
+  .sets.cols-3 { grid-template-columns: 1fr 1fr 1fr; }
+  .set-btn {
+    aspect-ratio: 1.6;
+    border: 1.5px solid var(--line);
+    border-radius: 12px;
+    background: var(--bg);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 2px;
+    transition: all 0.15s;
+    position: relative;
+  }
+  .sets.cols-1 .set-btn { aspect-ratio: 3.5; }
+  .set-btn:active { transform: scale(0.96); }
+  .set-btn .set-num {
+    font-family: 'Fraunces', serif;
+    font-size: 20px;
+    font-weight: 400;
+    color: var(--ink-faint);
+  }
+  .set-btn .set-lbl {
+    font-size: 9px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--ink-faint);
+    font-weight: 500;
+  }
+  .set-btn.done { background: var(--sage); border-color: var(--sage); }
+  .set-btn.done .set-num, .set-btn.done .set-lbl { color: white; }
+  .set-btn.done::after {
+    content: '';
+    position: absolute;
+    top: 7px; right: 7px;
+    width: 13px; height: 13px;
+    background: white;
+    border-radius: 50%;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%236B8E5A' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'><polyline points='20 6 9 17 4 12'/></svg>");
+    background-size: 9px;
+    background-repeat: no-repeat;
+    background-position: center;
+  }
+
+  .nav { display: flex; align-items: center; justify-content: space-between; margin-top: 22px; padding: 0 4px; }
+  .nav-btn {
+    width: 42px; height: 42px;
+    border-radius: 50%;
+    border: 0.5px solid var(--line);
+    display: grid;
+    place-items: center;
+    color: var(--ink);
+    background: var(--bg-elev);
+    transition: all 0.15s;
+  }
+  .nav-btn:disabled { opacity: 0.3; pointer-events: none; }
+  .nav-btn:active { transform: scale(0.93); }
+  .nav-btn svg { width: 16px; height: 16px; }
+  .progress {
+    display: flex;
+    gap: 5px;
+    align-items: center;
+    flex-wrap: wrap;
+    justify-content: center;
+    max-width: 220px;
+  }
+  .progress-dot {
+    width: 5px; height: 5px;
+    border-radius: 50%;
+    background: var(--line);
+    transition: all 0.2s;
+  }
+  .progress-dot.active { background: var(--terracotta); width: 16px; border-radius: 3px; }
+  .progress-dot.done { background: var(--sage); }
+
+  .done-screen { text-align: center; padding: 40px 20px 20px; }
+  .done-screen .check {
+    width: 64px; height: 64px;
+    margin: 0 auto 20px;
+    border-radius: 50%;
+    background: var(--sage-soft);
+    color: var(--sage-deep);
+    display: grid;
+    place-items: center;
+  }
+  .done-screen .check svg { width: 28px; height: 28px; }
+  .done-screen h2 {
+    font-family: 'Fraunces', serif;
+    font-weight: 400;
+    font-style: italic;
+    font-size: 28px;
+    letter-spacing: -0.02em;
+    margin-bottom: 8px;
+  }
+  .done-screen p { color: var(--ink-soft); font-size: 14px; margin-bottom: 22px; }
+  .summary-stats { display: flex; justify-content: center; gap: 28px; margin-bottom: 22px; }
+  .stat-num {
+    font-family: 'Fraunces', serif;
+    font-size: 32px;
+    font-weight: 400;
+    color: var(--terracotta);
+    line-height: 1;
+  }
+  .stat-lbl {
+    font-size: 10px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--ink-faint);
+    margin-top: 6px;
+    font-weight: 500;
+  }
+  .notes-block { margin: 20px 0; text-align: left; }
+  .notes-block label {
+    font-size: 11px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--ink-faint);
+    font-weight: 600;
+    margin-bottom: 8px;
+    display: block;
+  }
+  .notes-block textarea {
+    width: 100%;
+    padding: 12px 14px;
+    border: 0.5px solid var(--line);
+    border-radius: 10px;
+    background: var(--bg-elev);
+    color: var(--ink);
+    font-size: 14px;
+    resize: vertical;
+    min-height: 70px;
+    font-family: inherit;
+  }
+  .notes-block textarea:focus { outline: none; border-color: var(--terracotta); }
+  .done-actions { display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; }
+
+  .sheet-backdrop {
+    position: fixed;
+    inset: 0;
+    background: rgba(42,38,32,0.4);
+    z-index: 100;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.2s;
+  }
+  .sheet-backdrop.open { opacity: 1; pointer-events: auto; }
+  .sheet {
+    position: fixed;
+    bottom: 0; left: 50%;
+    transform: translateX(-50%) translateY(100%);
+    width: 100%;
+    max-width: 480px;
+    background: var(--bg);
+    border-radius: 22px 22px 0 0;
+    z-index: 101;
+    max-height: 92vh;
+    overflow-y: auto;
+    transition: transform 0.25s cubic-bezier(0.32, 0.72, 0.3, 1);
+    padding-bottom: calc(20px + env(safe-area-inset-bottom));
+    box-shadow: var(--shadow-lg);
+  }
+  .sheet.open { transform: translateX(-50%) translateY(0); }
+  .sheet-handle { width: 36px; height: 4px; background: var(--line); border-radius: 2px; margin: 10px auto 6px; }
+  .sheet-header {
+    padding: 14px 22px 18px;
+    border-bottom: 0.5px solid var(--line);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .sheet-title {
+    font-family: 'Fraunces', serif;
+    font-size: 22px;
+    font-weight: 400;
+    letter-spacing: -0.01em;
+  }
+  .sheet-close { color: var(--ink-soft); font-size: 14px; font-weight: 500; }
+  .sheet-body { padding: 20px 22px; }
+
+  .field { margin-bottom: 16px; }
+  .field label {
+    display: block;
+    font-size: 11px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--ink-faint);
+    font-weight: 600;
+    margin-bottom: 8px;
+  }
+  .field input, .field textarea {
+    width: 100%;
+    padding: 12px 14px;
+    border: 0.5px solid var(--line);
+    border-radius: 10px;
+    background: var(--bg-elev);
+    color: var(--ink);
+    font-size: 15px;
+    transition: border-color 0.15s;
+  }
+  .field input:focus, .field textarea:focus { outline: none; border-color: var(--terracotta); }
+  .field textarea { resize: vertical; min-height: 80px; font-family: inherit; }
+  .field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .settings-section { margin-bottom: 24px; }
+  .settings-label {
+    font-size: 11px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--ink-faint);
+    font-weight: 600;
+    margin-bottom: 12px;
+    display: block;
+  }
+  .settings-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 14px;
+    background: var(--bg-elev);
+    border: 0.5px solid var(--line);
+    border-radius: 10px;
+    margin-bottom: 8px;
+    font-size: 14px;
+  }
+  .settings-row .val {
+    color: var(--ink-faint);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+  }
+
+  .ex-list-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 0;
+    border-bottom: 0.5px solid var(--line);
+    gap: 10px;
+  }
+  .ex-list-item:last-child { border-bottom: none; }
+  .ex-list-info { flex: 1; min-width: 0; }
+  .ex-list-name { font-weight: 500; font-size: 14px; margin-bottom: 2px; color: var(--ink); }
+  .ex-list-meta { font-size: 11px; color: var(--ink-faint); }
+  .ex-list-actions { display: flex; gap: 4px; }
+  .mini-btn {
+    width: 30px; height: 30px;
+    border-radius: 8px;
+    display: grid;
+    place-items: center;
+    color: var(--ink-soft);
+    background: var(--bg-soft);
+  }
+  .mini-btn svg { width: 13px; height: 13px; }
+  .mini-btn.danger { color: var(--terracotta); }
+
+  .session-tabs {
+    display: flex;
+    gap: 4px;
+    margin-bottom: 16px;
+    background: var(--bg-soft);
+    padding: 3px;
+    border-radius: 100px;
+  }
+  .session-tab {
+    flex: 1;
+    padding: 8px;
+    font-size: 12px;
+    font-weight: 500;
+    border-radius: 100px;
+    color: var(--ink-faint);
+    transition: all 0.15s;
+  }
+  .session-tab.active {
+    background: var(--bg-elev);
+    color: var(--ink);
+    box-shadow: var(--shadow);
+  }
+  .matrix-wrap { overflow-x: auto; margin: 0 -22px; padding: 0 22px; }
+  .matrix { display: grid; gap: 4px; min-width: max-content; }
+  .matrix-row {
+    display: grid;
+    grid-template-columns: 130px repeat(14, 22px);
+    gap: 4px;
+    align-items: center;
+  }
+  .matrix-header .matrix-cell-label {
+    font-size: 10px;
+    color: var(--ink-faint);
+    font-family: 'JetBrains Mono', monospace;
+    text-align: center;
+  }
+  .matrix-cell-name {
+    font-size: 12px;
+    font-weight: 500;
+    padding-right: 8px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    color: var(--ink);
+  }
+  .matrix-cell {
+    width: 22px; height: 22px;
+    border-radius: 5px;
+    background: var(--bg-soft);
+    display: grid;
+    place-items: center;
+    font-size: 9px;
+    font-weight: 600;
+    color: var(--ink-faint);
+    font-family: 'JetBrains Mono', monospace;
+    border: none;
+  }
+  .matrix-cell.partial { background: var(--sage-soft); color: var(--sage-deep); }
+  .matrix-cell.full { background: var(--sage); color: white; }
+  .matrix-cell.today { box-shadow: 0 0 0 1.5px var(--terracotta); }
+
+  .empty-mini { text-align: center; padding: 30px 20px; color: var(--ink-faint); font-size: 13px; }
+
+  .toast {
+    position: fixed;
+    bottom: 30px; left: 50%;
+    transform: translateX(-50%) translateY(20px);
+    background: var(--ink);
+    color: var(--bg);
+    padding: 11px 18px;
+    border-radius: 100px;
+    font-size: 13px;
+    font-weight: 500;
+    z-index: 200;
+    opacity: 0;
+    pointer-events: none;
+    transition: all 0.25s;
+    box-shadow: var(--shadow-lg);
+  }
+  .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+  .date-banner {
+    background: var(--terracotta-soft);
+    color: var(--terracotta-deep);
+    padding: 8px 14px;
+    border-radius: 10px;
+    font-size: 12px;
+    font-weight: 500;
+    margin-bottom: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .date-banner-btn { font-size: 11px; font-weight: 600; text-decoration: underline; }
+</style>
+</head>
+<body>
+<div class="app">
+
+  <header class="header">
+    <div class="header-row">
+      <div>
+        <div class="brand">Recovery · ACL</div>
+        <div class="day-line" id="dayLine">Day <em>—</em></div>
+        <div class="date-sub" id="dateSub">—</div>
+      </div>
+      <div class="header-actions">
+        <button class="icon-btn" id="historyBtn" aria-label="History">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v5h5"/><path d="M3.05 13A9 9 0 1 0 6 5.3L3 8"/><path d="M12 7v5l4 2"/></svg>
+        </button>
+        <button class="icon-btn" id="settingsBtn" aria-label="Settings">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+        </button>
+      </div>
+    </div>
+    <div class="streak-strip" id="streakStrip">
+      <div class="streak-dot"></div>
+      <div class="streak-text" id="streakText">No streak yet — start today.</div>
+    </div>
+  </header>
+
+  <main class="main" id="main"></main>
+</div>
+
+<div class="sheet-backdrop" id="backdrop"></div>
+
+<div class="sheet" id="settingsSheet">
+  <div class="sheet-handle"></div>
+  <div class="sheet-header">
+    <div class="sheet-title">Settings</div>
+    <button class="sheet-close" data-close>Done</button>
+  </div>
+  <div class="sheet-body">
+    <div class="settings-section">
+      <span class="settings-label">Surgery</span>
+      <button class="settings-row" id="surgeryDateBtn" style="width:100%; text-align:left;">
+        <span>Surgery date</span>
+        <span class="val" id="surgeryDateVal">Not set</span>
+      </button>
+    </div>
+    <div class="settings-section">
+      <span class="settings-label">Exercises</span>
+      <button class="btn-primary" id="addExerciseBtn" style="width:100%; justify-content:center; margin-bottom:14px;">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        Add Exercise
+      </button>
+      <div id="exerciseList"></div>
+    </div>
+    <div class="settings-section">
+      <span class="settings-label">Data</span>
+      <div style="display:flex; gap:8px; flex-wrap:wrap;">
+        <button class="btn-secondary" id="exportBtn">Download backup</button>
+        <button class="btn-secondary" id="importBtn">Import backup</button>
+        <input type="file" id="importFile" accept=".json" style="display:none">
+      </div>
+      <div style="font-size:11px; color:var(--ink-faint); margin-top:10px;">Saves locally on this device. Download a backup weekly.</div>
+    </div>
+  </div>
+</div>
+
+<div class="sheet" id="formSheet">
+  <div class="sheet-handle"></div>
+  <div class="sheet-header">
+    <div class="sheet-title" id="formTitle">Add Exercise</div>
+    <button class="sheet-close" data-close>Cancel</button>
+  </div>
+  <div class="sheet-body">
+    <div class="field"><label>Exercise name</label><input type="text" id="fName" placeholder="e.g. Quad sets" autocomplete="off" /></div>
+    <div class="field"><label>Muscle / purpose</label><input type="text" id="fMuscle" placeholder="e.g. Quadriceps activation" autocomplete="off" /></div>
+    <div class="field"><label>How to do it</label><textarea id="fHowTo" placeholder="Reminder for yourself"></textarea></div>
+    <div class="field-row">
+      <div class="field"><label>Sets per session</label><input type="number" id="fSets" value="2" min="1" max="10" /></div>
+      <div class="field"><label>Reps (optional)</label><input type="text" id="fReps" placeholder="e.g. 10" /></div>
+    </div>
+    <button class="btn-primary" id="saveExerciseBtn" style="width:100%; justify-content:center; margin-top:6px;">Save</button>
+  </div>
+</div>
+
+<div class="sheet" id="historySheet">
+  <div class="sheet-handle"></div>
+  <div class="sheet-header">
+    <div class="sheet-title">14-Day History</div>
+    <button class="sheet-close" data-close>Done</button>
+  </div>
+  <div class="sheet-body" id="historyBody"></div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const STORAGE_KEY = 'acl_rehab_v2';
+const SESSIONS = [
+  { id: 'morning',   name: 'Morning',   hours: '6am – 12pm' },
+  { id: 'afternoon', name: 'Afternoon', hours: '12pm – 6pm' },
+  { id: 'evening',   name: 'Evening',   hours: '6pm – late' }
+];
+
+let state = { exercises: [], logs: {}, surgeryDate: null };
+let view = 'home';
+let currentSession = null;
+let currentIndex = 0;
+let viewingDate = todayStr();
+let historyTab = 'all';
+let editingId = null;
+
+function uid() { return 'ex_' + Math.random().toString(36).slice(2, 9); }
+function todayStr() {
+  const d = new Date();
+  return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
+}
+function fmtDateLong(s) {
+  const [y,m,d] = s.split('-').map(Number);
+  return new Date(y, m-1, d).toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric' });
+}
+function fmtDateShort(s) {
+  const [y,m,d] = s.split('-').map(Number);
+  return new Date(y, m-1, d).toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
+}
+function daysBetween(a, b) {
+  const [ay,am,ad] = a.split('-').map(Number);
+  const [by,bm,bd] = b.split('-').map(Number);
+  return Math.round((new Date(by,bm-1,bd) - new Date(ay,am-1,ad))/86400000);
+}
+function activeExercises() { return state.exercises.filter(e => e.active !== false); }
+function currentTimeSession() {
+  const h = new Date().getHours();
+  if (h < 12) return 'morning';
+  if (h < 18) return 'afternoon';
+  return 'evening';
+}
+
+function save() {
+  try { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); }
+  catch(e) { toast('Could not save'); }
+}
+function load() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (raw) state = JSON.parse(raw);
+  } catch(e) {}
+  if (!state.exercises) state.exercises = [];
+  if (!state.logs) state.logs = {};
+  // Migrate v1 logs
+  Object.keys(state.logs).forEach(date => {
+    const entry = state.logs[date];
+    if (entry && !entry.morning && !entry.afternoon && !entry.evening) {
+      state.logs[date] = {
+        morning:   { exercises: entry, notes: '' },
+        afternoon: { exercises: {}, notes: '' },
+        evening:   { exercises: {}, notes: '' }
+      };
+    }
+  });
+}
+
+function getSessionLog(date, sessionId) {
+  if (!state.logs[date]) state.logs[date] = {};
+  if (!state.logs[date][sessionId]) state.logs[date][sessionId] = { exercises: {}, notes: '' };
+  return state.logs[date][sessionId];
+}
+function getSets(date, sessionId, exerciseId, targetSets) {
+  const log = getSessionLog(date, sessionId);
+  const sets = log.exercises[exerciseId] ? [...log.exercises[exerciseId]] : new Array(targetSets).fill(false);
+  while (sets.length < targetSets) sets.push(false);
+  return sets;
+}
+function setSetsForExercise(date, sessionId, exerciseId, sets) {
+  const log = getSessionLog(date, sessionId);
+  log.exercises[exerciseId] = sets;
+  save();
+}
+function sessionProgress(date, sessionId) {
+  const active = activeExercises();
+  if (active.length === 0) return { done: 0, total: 0, complete: false };
+  let done = 0, total = 0;
+  active.forEach(ex => {
+    const sets = getSets(date, sessionId, ex.id, ex.targetSets || 2);
+    done += sets.filter(Boolean).length;
+    total += (ex.targetSets || 2);
+  });
+  return { done, total, complete: done === total && total > 0 };
+}
+function exerciseDoneInSession(date, sessionId, ex) {
+  const sets = getSets(date, sessionId, ex.id, ex.targetSets || 2);
+  return sets.filter(Boolean).length >= (ex.targetSets || 2);
+}
+function isDayComplete(date) {
+  return SESSIONS.every(s => sessionProgress(date, s.id).complete);
+}
+function computeStreak() {
+  let streak = 0;
+  let d = new Date();
+  const today = todayStr();
+  for (let i = 0; i < 365; i++) {
+    const s = d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
+    if (isDayComplete(s)) streak++;
+    else if (s === today) {} // grace for today
+    else break;
+    d.setDate(d.getDate()-1);
+  }
+  return streak;
+}
+
+function render() {
+  renderHeader();
+  if (view === 'home') renderHome();
+  else if (view === 'session') renderSession();
+  else if (view === 'session-done') renderSessionDone();
+}
+
+function renderHeader() {
+  const dayLine = document.getElementById('dayLine');
+  const dateSub = document.getElementById('dateSub');
+  const streakText = document.getElementById('streakText');
+
+  if (state.surgeryDate) {
+    const n = daysBetween(state.surgeryDate, viewingDate) + 1;
+    dayLine.innerHTML = `Day <em>${n}</em>`;
+  } else {
+    dayLine.innerHTML = `Day <em>—</em>`;
+  }
+  dateSub.textContent = fmtDateLong(viewingDate).toUpperCase();
+
+  const streak = computeStreak();
+  if (streak === 0) streakText.innerHTML = `No streak yet — <strong>start today.</strong>`;
+  else streakText.innerHTML = `<strong>${streak}-day streak.</strong> Keep going.`;
+}
+
+function renderHome() {
+  const main = document.getElementById('main');
+  const active = activeExercises();
+
+  if (active.length === 0) {
+    main.innerHTML = `
+      <div class="empty">
+        <div class="empty-icon">
+          <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="18" x2="12" y2="12"/><line x1="9" y1="15" x2="15" y2="15"/></svg>
+        </div>
+        <h2>No exercises yet</h2>
+        <p>Add the exercises your physio prescribed, or import a backup JSON.</p>
+        <button class="btn-primary" onclick="openAddForm()">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          Add exercise
+        </button>
+        <div style="margin-top:14px;"><button class="btn-ghost" id="importEmptyBtn">Import backup file</button></div>
+        ${!state.surgeryDate ? `<div style="margin-top:8px;"><button class="btn-ghost" onclick="setSurgeryDate()">Set surgery date</button></div>` : ''}
+      </div>
+    `;
+    setTimeout(() => {
+      const btn = document.getElementById('importEmptyBtn');
+      if (btn) btn.onclick = () => document.getElementById('importFile').click();
+    }, 0);
+    return;
+  }
+
+  const isToday = viewingDate === todayStr();
+  const nowSession = isToday ? currentTimeSession() : null;
+
+  let totalSets = 0, doneSets = 0;
+  SESSIONS.forEach(s => {
+    const p = sessionProgress(viewingDate, s.id);
+    totalSets += p.total;
+    doneSets += p.done;
+  });
+
+  let html = '';
+  if (!isToday) {
+    html += `<div class="date-banner"><span>Viewing ${fmtDateShort(viewingDate)}</span><button class="date-banner-btn" onclick="goToToday()">Back to today</button></div>`;
+  }
+
+  html += `<p class="home-intro">${isToday ? 'Tap a session to begin.' : 'Reviewing past day.'}</p>`;
+  html += `<div class="session-cards">`;
+  SESSIONS.forEach(s => {
+    const p = sessionProgress(viewingDate, s.id);
+    const pct = p.total ? Math.round((p.done / p.total) * 100) : 0;
+    const isComplete = p.complete;
+    const isCurrent = nowSession === s.id && !isComplete;
+    html += `
+      <button class="session-card ${isComplete ? 'complete' : ''} ${isCurrent ? 'active-now' : ''}" onclick="openSession('${s.id}')">
+        <div class="s-head">
+          <div>
+            <div class="s-time">${s.hours}</div>
+            <div class="s-name">${s.name}</div>
+          </div>
+          ${isComplete ? `<div class="s-check"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>` : isCurrent ? `<span class="s-badge">Now</span>` : ''}
+        </div>
+        <div class="s-status">
+          <div class="s-progress-bar"><div class="s-progress-fill" style="width:${pct}%"></div></div>
+          <span>${isComplete ? 'Complete' : p.done + '/' + p.total + ' sets'}</span>
+        </div>
+      </button>
+    `;
+  });
+  html += `</div>`;
+
+  const pctDay = totalSets ? Math.round((doneSets / totalSets) * 100) : 0;
+  html += `
+    <div class="today-summary">
+      <div>
+        <div class="lbl">${isToday ? 'Today' : 'This day'}</div>
+        <div class="val">${doneSets} <span style="font-size:14px; color:var(--ink-faint);">/ ${totalSets} sets</span></div>
+      </div>
+      <div style="font-family:'Fraunces',serif; font-size:32px; color:${pctDay===100?'var(--sage)':'var(--ink-faint)'}; font-style:italic;">${pctDay}%</div>
+    </div>
+  `;
+
+  main.innerHTML = html;
+}
+
+function renderSession() {
+  const main = document.getElementById('main');
+  const active = activeExercises();
+  const session = SESSIONS.find(s => s.id === currentSession);
+
+  if (currentIndex >= active.length) {
+    view = 'session-done';
+    render();
+    return;
+  }
+
+  const ex = active[currentIndex];
+  const targetSets = ex.targetSets || 2;
+  const sets = getSets(viewingDate, currentSession, ex.id, targetSets);
+  const doneCount = sets.filter(Boolean).length;
+  const isComplete = doneCount >= targetSets;
+  const isToday = viewingDate === todayStr();
+
+  let html = '';
+  if (!isToday) {
+    html += `<div class="date-banner"><span>Viewing ${fmtDateShort(viewingDate)}</span><button class="date-banner-btn" onclick="goToToday()">Back to today</button></div>`;
+  }
+
+  html += `
+    <div class="session-header">
+      <button class="back-btn" onclick="goHome()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+        Home
+      </button>
+      <div class="session-title">${session.name}</div>
+      <button class="mark-all-btn" onclick="markAllSession()">All done</button>
+    </div>
+    <div class="card ${isComplete ? 'complete' : ''}">
+      <span class="card-tag">${currentIndex+1} of ${active.length}</span>
+      <h1 class="card-name">${escape(ex.name)}</h1>
+      ${ex.muscle ? `<div class="card-muscle">${escape(ex.muscle)}</div>` : ''}
+      ${(ex.howTo || ex.targetReps) ? `
+      <div class="details" id="detailsBlock">
+        <button class="details-toggle" onclick="toggleDetails()">
+          ${ex.howTo ? 'How to do it' : 'Target'}
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+        </button>
+        <div class="details-body">
+          ${ex.howTo ? escape(ex.howTo) : ''}
+          ${ex.targetReps ? `<div class="reps-tag">Target: ${escape(ex.targetReps)} reps per set</div>` : ''}
+        </div>
+      </div>
+      ` : ''}
+      <div class="sets-label">Tap to log your sets</div>
+      <div class="sets cols-${Math.min(targetSets, 3)}">
+        ${sets.map((done, i) => `
+          <button class="set-btn ${done ? 'done' : ''}" onclick="toggleSet('${ex.id}', ${i})">
+            <span class="set-num">${i+1}</span>
+            <span class="set-lbl">Set</span>
+          </button>
+        `).join('')}
+      </div>
+    </div>
+    <div class="nav">
+      <button class="nav-btn" onclick="prevExercise()" ${currentIndex===0?'disabled':''}>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+      </button>
+      <div class="progress">
+        ${active.map((e, i) => {
+          const eDone = exerciseDoneInSession(viewingDate, currentSession, e);
+          const cls = i === currentIndex ? 'active' : (eDone ? 'done' : '');
+          return `<span class="progress-dot ${cls}"></span>`;
+        }).join('')}
+      </div>
+      <button class="nav-btn" onclick="nextExercise()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+      </button>
+    </div>
+  `;
+
+  main.innerHTML = html;
+  setupSwipe();
+}
+
+function renderSessionDone() {
+  const main = document.getElementById('main');
+  const active = activeExercises();
+  const session = SESSIONS.find(s => s.id === currentSession);
+  const p = sessionProgress(viewingDate, currentSession);
+  const completed = active.filter(ex => exerciseDoneInSession(viewingDate, currentSession, ex)).length;
+  const log = getSessionLog(viewingDate, currentSession);
+
+  main.innerHTML = `
+    <div class="session-header">
+      <button class="back-btn" onclick="goHome()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+        Home
+      </button>
+      <div class="session-title">${session.name}</div>
+      <div style="width:40px;"></div>
+    </div>
+    <div class="done-screen">
+      <div class="check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
+      <h2>${p.complete ? "Session done." : "Session reviewed."}</h2>
+      <p>${session.name} · ${viewingDate === todayStr() ? 'today' : fmtDateShort(viewingDate)}</p>
+      <div class="summary-stats">
+        <div><div class="stat-num">${completed}/${active.length}</div><div class="stat-lbl">Exercises</div></div>
+        <div><div class="stat-num">${p.done}/${p.total}</div><div class="stat-lbl">Sets</div></div>
+      </div>
+      <div class="notes-block">
+        <label>Notes for this session</label>
+        <textarea id="sessionNotes" placeholder="e.g. Knee felt stiff. Heel slides easier today.">${escape(log.notes || '')}</textarea>
+      </div>
+      <div class="done-actions">
+        <button class="btn-secondary" onclick="currentIndex=0; view='session'; render();">Review exercises</button>
+        <button class="btn-sage" onclick="goHome()">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+          Back to home
+        </button>
+      </div>
+    </div>
+  `;
+
+  const ta = document.getElementById('sessionNotes');
+  if (ta) {
+    ta.onblur = () => {
+      const log = getSessionLog(viewingDate, currentSession);
+      log.notes = ta.value;
+      save();
+    };
+  }
+}
+
+function openSession(sessionId) { currentSession = sessionId; currentIndex = 0; view = 'session'; render(); }
+function goHome() {
+  const ta = document.getElementById('sessionNotes');
+  if (ta && currentSession) {
+    const log = getSessionLog(viewingDate, currentSession);
+    log.notes = ta.value;
+    save();
+  }
+  view = 'home'; currentSession = null; currentIndex = 0; render();
+}
+function goToToday() { viewingDate = todayStr(); view = 'home'; currentSession = null; currentIndex = 0; render(); }
+function toggleSet(exId, setIdx) {
+  const ex = state.exercises.find(e => e.id === exId);
+  const targetSets = ex.targetSets || 2;
+  const sets = getSets(viewingDate, currentSession, exId, targetSets);
+  sets[setIdx] = !sets[setIdx];
+  setSetsForExercise(viewingDate, currentSession, exId, sets);
+  if (navigator.vibrate) navigator.vibrate(sets[setIdx] ? 12 : 6);
+  render();
+}
+function markAllSession() {
+  if (!confirm('Mark every exercise in this session as fully done?')) return;
+  activeExercises().forEach(ex => {
+    const targetSets = ex.targetSets || 2;
+    setSetsForExercise(viewingDate, currentSession, ex.id, new Array(targetSets).fill(true));
+  });
+  toast('Session marked done');
+  if (navigator.vibrate) navigator.vibrate([15, 30, 15]);
+  view = 'session-done';
+  render();
+}
+function prevExercise() { if (currentIndex > 0) currentIndex--; render(); }
+function nextExercise() { if (currentIndex < activeExercises().length) currentIndex++; render(); }
+function toggleDetails() { document.getElementById('detailsBlock').classList.toggle('open'); }
+
+let touchStartX = 0, touchStartY = 0, touchMoved = false;
+function setupSwipe() {
+  const main = document.getElementById('main');
+  main.ontouchstart = (e) => {
+    touchStartX = e.touches[0].clientX;
+    touchStartY = e.touches[0].clientY;
+    touchMoved = false;
+  };
+  main.ontouchmove = (e) => {
+    const dx = e.touches[0].clientX - touchStartX;
+    const dy = e.touches[0].clientY - touchStartY;
+    if (Math.abs(dx) > 10 || Math.abs(dy) > 10) touchMoved = true;
+  };
+  main.ontouchend = (e) => {
+    if (!touchMoved) return;
+    const dx = e.changedTouches[0].clientX - touchStartX;
+    const dy = e.changedTouches[0].clientY - touchStartY;
+    if (Math.abs(dx) > 60 && Math.abs(dx) > Math.abs(dy)*1.5) {
+      if (dx < 0) nextExercise();
+      else prevExercise();
+    }
+  };
+}
+
+function openSheet(id) {
+  document.getElementById('backdrop').classList.add('open');
+  document.getElementById(id).classList.add('open');
+}
+function closeAllSheets() {
+  document.getElementById('backdrop').classList.remove('open');
+  document.querySelectorAll('.sheet').forEach(s => s.classList.remove('open'));
+}
+document.getElementById('backdrop').onclick = closeAllSheets;
+document.querySelectorAll('[data-close]').forEach(b => b.onclick = closeAllSheets);
+
+document.getElementById('settingsBtn').onclick = () => {
+  renderExerciseList();
+  renderSettingsSurgery();
+  openSheet('settingsSheet');
+};
+document.getElementById('historyBtn').onclick = () => {
+  renderHistory();
+  openSheet('historySheet');
+};
+
+function openAddForm(id) {
+  editingId = id || null;
+  const ex = id ? state.exercises.find(e => e.id === id) : null;
+  document.getElementById('formTitle').textContent = ex ? 'Edit Exercise' : 'Add Exercise';
+  document.getElementById('fName').value = ex?.name || '';
+  document.getElementById('fMuscle').value = ex?.muscle || '';
+  document.getElementById('fHowTo').value = ex?.howTo || '';
+  document.getElementById('fSets').value = ex?.targetSets || 2;
+  document.getElementById('fReps').value = ex?.targetReps || '';
+  closeAllSheets();
+  setTimeout(() => openSheet('formSheet'), 50);
+}
+document.getElementById('addExerciseBtn').onclick = () => openAddForm();
+document.getElementById('saveExerciseBtn').onclick = () => {
+  const name = document.getElementById('fName').value.trim();
+  if (!name) { toast('Name is required'); return; }
+  const data = {
+    name,
+    muscle: document.getElementById('fMuscle').value.trim(),
+    howTo: document.getElementById('fHowTo').value.trim(),
+    targetSets: Math.max(1, Math.min(10, parseInt(document.getElementById('fSets').value) || 2)),
+    targetReps: document.getElementById('fReps').value.trim(),
+    active: true
+  };
+  if (editingId) {
+    const idx = state.exercises.findIndex(e => e.id === editingId);
+    state.exercises[idx] = { ...state.exercises[idx], ...data };
+    toast('Updated');
+  } else {
+    state.exercises.push({ id: uid(), ...data, dateAdded: todayStr() });
+    toast('Added');
+  }
+  save();
+  closeAllSheets();
+  setTimeout(() => { openSheet('settingsSheet'); renderExerciseList(); }, 50);
+  render();
+};
+
+function renderExerciseList() {
+  const wrap = document.getElementById('exerciseList');
+  if (state.exercises.length === 0) {
+    wrap.innerHTML = `<div class="empty-mini">No exercises yet.</div>`;
+    return;
+  }
+  wrap.innerHTML = state.exercises.map(ex => `
+    <div class="ex-list-item">
+      <div class="ex-list-info">
+        <div class="ex-list-name">${escape(ex.name)}</div>
+        <div class="ex-list-meta">${escape(ex.muscle || 'No muscle set')} · ${ex.targetSets} sets${ex.targetReps ? ' · ' + escape(ex.targetReps) + ' reps' : ''}${ex.active === false ? ' · retired' : ''}</div>
+      </div>
+      <div class="ex-list-actions">
+        <button class="mini-btn" onclick="openAddForm('${ex.id}')" aria-label="Edit">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+        </button>
+        <button class="mini-btn danger" onclick="deleteExercise('${ex.id}')" aria-label="Delete">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg>
+        </button>
+      </div>
+    </div>
+  `).join('');
+}
+function deleteExercise(id) {
+  const ex = state.exercises.find(e => e.id === id);
+  if (!ex) return;
+  if (!confirm(`Retire "${ex.name}"? Past logs stay in history.`)) return;
+  ex.active = false;
+  save();
+  renderExerciseList();
+  render();
+  toast('Exercise retired');
+}
+
+function renderHistory() {
+  const body = document.getElementById('historyBody');
+  if (state.exercises.length === 0) {
+    body.innerHTML = `<div class="empty-mini">Add exercises first to see history.</div>`;
+    return;
+  }
+  const days = [];
+  const d = new Date();
+  for (let i = 13; i >= 0; i--) {
+    const dt = new Date(d);
+    dt.setDate(d.getDate() - i);
+    days.push(dt.getFullYear() + '-' + String(dt.getMonth()+1).padStart(2,'0') + '-' + String(dt.getDate()).padStart(2,'0'));
+  }
+  const today = todayStr();
+
+  let html = `
+    <div class="session-tabs">
+      <button class="session-tab ${historyTab==='all'?'active':''}" onclick="historyTab='all'; renderHistory()">All day</button>
+      <button class="session-tab ${historyTab==='morning'?'active':''}" onclick="historyTab='morning'; renderHistory()">AM</button>
+      <button class="session-tab ${historyTab==='afternoon'?'active':''}" onclick="historyTab='afternoon'; renderHistory()">Noon</button>
+      <button class="session-tab ${historyTab==='evening'?'active':''}" onclick="historyTab='evening'; renderHistory()">PM</button>
+    </div>
+  `;
+
+  html += `<div class="matrix-wrap"><div class="matrix">`;
+  html += `<div class="matrix-row matrix-header"><div></div>` + days.map(d => {
+    const day = d.split('-')[2];
+    return `<div class="matrix-cell-label">${day}</div>`;
+  }).join('') + `</div>`;
+
+  state.exercises.forEach(ex => {
+    html += `<div class="matrix-row"><div class="matrix-cell-name">${escape(ex.name)}</div>`;
+    days.forEach(date => {
+      let done = 0, total = 0;
+      if (historyTab === 'all') {
+        SESSIONS.forEach(s => {
+          const sets = getSets(date, s.id, ex.id, ex.targetSets || 2);
+          done += sets.filter(Boolean).length;
+          total += (ex.targetSets || 2);
+        });
+      } else {
+        const sets = getSets(date, historyTab, ex.id, ex.targetSets || 2);
+        done = sets.filter(Boolean).length;
+        total = ex.targetSets || 2;
+      }
+      let cls = '';
+      if (done > 0 && done < total) cls = 'partial';
+      else if (done >= total && total > 0) cls = 'full';
+      const isToday = date === today ? ' today' : '';
+      html += `<button class="matrix-cell ${cls}${isToday}" onclick="jumpToDate('${date}')">${done || ''}</button>`;
+    });
+    html += `</div>`;
+  });
+  html += `</div></div>`;
+  html += `<div style="font-size:11px; color:var(--ink-faint); margin-top:14px; text-align:center;">Tap any day to view it.</div>`;
+  body.innerHTML = html;
+}
+function jumpToDate(date) {
+  viewingDate = date;
+  view = 'home'; currentSession = null; currentIndex = 0;
+  closeAllSheets();
+  render();
+}
+
+function renderSettingsSurgery() {
+  document.getElementById('surgeryDateVal').textContent = state.surgeryDate || 'Not set';
+}
+document.getElementById('surgeryDateBtn').onclick = setSurgeryDate;
+function setSurgeryDate() {
+  const inp = prompt('Surgery date (YYYY-MM-DD), or leave blank to clear:', state.surgeryDate || '');
+  if (inp === null) return;
+  if (inp.trim() === '') {
+    state.surgeryDate = null;
+    save();
+    render();
+    renderSettingsSurgery();
+    toast('Cleared');
+    return;
+  }
+  if (/^\d{4}-\d{2}-\d{2}$/.test(inp)) {
+    state.surgeryDate = inp;
+    save();
+    render();
+    renderSettingsSurgery();
+    toast('Surgery date set');
+  } else {
+    toast('Use format YYYY-MM-DD');
+  }
+}
+
+document.getElementById('exportBtn').onclick = () => {
+  const data = JSON.stringify(state, null, 2);
+  const blob = new Blob([data], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `acl-rehab-backup-${todayStr()}.json`;
+  a.click();
+  URL.revokeObjectURL(url);
+  toast('Backup downloaded');
+};
+document.getElementById('importBtn').onclick = () => document.getElementById('importFile').click();
+document.getElementById('importFile').onchange = (e) => {
+  const file = e.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = (ev) => {
+    try {
+      const data = JSON.parse(ev.target.result);
+      if (!data.exercises) throw new Error('bad format');
+      if (state.exercises.length > 0 && !confirm('Replace current data with backup?')) return;
+      state = { exercises: data.exercises || [], logs: data.logs || {}, surgeryDate: data.surgeryDate || null };
+      save();
+      load();
+      render();
+      closeAllSheets();
+      toast('Backup imported');
+    } catch(err) {
+      toast('Invalid backup file');
+    }
+  };
+  reader.readAsText(file);
+};
+
+function escape(s) {
+  return String(s||'').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[c]);
+}
+let toastTimer;
+function toast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.classList.remove('show'), 1800);
+}
+
+load();
+render();
+</script>
+</body>
+</html>
